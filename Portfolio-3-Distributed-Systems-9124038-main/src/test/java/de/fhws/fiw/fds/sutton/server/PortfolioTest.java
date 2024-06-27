@@ -31,13 +31,13 @@ public class PortfolioTest
 
     private static @NotNull ClientUni getUniversityExample() {
         var university = new ClientUni();
-        university.setUniversityName("UniversityTest");
-        university.setCountry("LandTest");
-        university.setDepartmentName("Science Dept");
-        university.setDepartmentWebsite("http://testuni.testland/cs");
+        university.setCountry("Germany");
+        university.setContactPerson("Sam");
+        university.setUniversityName("UniTest");
+        university.setDepartmentName("Sci Dept");
+        university.setDepartmentWebsite("http://unitest.germany/cs");
         university.setStudentsOutgoing(300);
         university.setStudentsIncoming(200);
-        university.setContactPerson("Test Doe");
         university.setNextSpringSemesterStart(LocalDate.of(2025, 3, 1));
         university.setNextAutumnSemesterStart(LocalDate.of(2025, 9, 1));
         university.setAnnualTuitionFees(1500.0);
@@ -64,10 +64,13 @@ public class PortfolioTest
         assertEquals(201, client.getLastStatusCode());
     }
 
+    // CREATE UNIVERSITY WRONG INPUT 1
     @Test void create_uni_falseinput_incoming_test() throws IOException {
+        // GET ALL
         client.start();
         client.getAllUniversities();
 
+        // CREATE
         var university = getUniversityExample();
         university.setStudentsIncoming(-1);
         assertTrue(client.isCreateUniversityAllowed());
@@ -75,7 +78,9 @@ public class PortfolioTest
         assertEquals(400, client.getLastStatusCode());
     }
 
+    // CREATE UNIVERSITY WITH WRONG INPUT 2
     @Test void create_uni_falseinput_outgoing_test() throws IOException {
+        // GET ALL
         client.start();
         client.getAllUniversities();
 
@@ -91,7 +96,6 @@ public class PortfolioTest
         assertEquals(200, client.getLastStatusCode());
     }
 
-//this is sample
     @Test public void get_all_universities_dispatcher() throws IOException {
         client.start();
         assertTrue(client.isGetAllUniversitiesAllowed());
@@ -99,17 +103,15 @@ public class PortfolioTest
         assertEquals(200, client.getLastStatusCode());
     }
 
+    // GET SINGLE UNIVERSITY
     @Test void create_and_get_university_dispatcher() throws IOException {
-        // GET ALL
         client.start();
         client.getAllUniversities();
 
-        // CREATE UNIVERSITY
         var university = getUniversityExample();
         client.createUniversity(university);
         assertEquals(201, client.getLastStatusCode());
 
-        // TEST SINGLE RESULT
         assertTrue( client.isGetSingleUniversityAllowed() );
         client.getSingleUniversity();
         assertEquals(200, client.getLastStatusCode());
@@ -139,39 +141,32 @@ public class PortfolioTest
 
     // GET ALL AND FILTER
     @Test void create_universities_filter_name_and_country() throws IOException {
-        /* Create 35 universities "A-Z/1-9 University" to test ordering */
         client.fillDatabase();
 
-        // CREATE UNIVERSITY KNOWN
         var university = getUniversityExample();
 
-        // GET ALL AND CREATE
         client.start();
         client.getAllUniversities();
         client.createUniversity(university);
         assertEquals(201, client.getLastStatusCode());
 
-        // GET ALL AND FILTER BY KNOWN NAME
         client.start();
         client.getAllUniversities();
         assertTrue(client.isGetByNameAndCountryAllowed());
-        client.getByNameAndCountry("TestUni","TestLand");
+        client.getByNameAndCountry("UniTest","Germany");
         assertEquals( 1, client.universityData().size() );
     }
 
     // Descending GET All
     @Test void create_universities_and_display_in_descending() throws IOException {
-       
         client.fillDatabase();
 
-        // GET ALL AND ORDER
         client.start();
         client.getAllUniversities();
         assertTrue(client.isGetByNameAndCountryReversedAllowed());
         client.getByNameAndCountryReversed("","");
         assertEquals( "Z University", client.universityData().getFirst().getUniversityName() );
 
-        // Ascending Ordering and GET All
         client.start();
         client.getAllUniversities();
         assertTrue(client.isGetAllUniversitiesAllowedReversed());
@@ -179,14 +174,12 @@ public class PortfolioTest
         assertEquals( "Z University", client.universityData().getFirst().getUniversityName() );
     }
 
-    // GET Second Position Single University
+    // GET SINGLE UNIVERSITY ON SECOND POSITION
     @Test void create_two_universities_and_get_second() throws IOException {
-        // CREATE EXAMPLES
         var university = getUniversityExample();
         var university2 = getUniversityExample();
         university2.setCountry("CountryTwo");
 
-        // CREATE TWO and GET all
         client.start();
         client.getAllUniversities();
         client.createUniversity(university);
@@ -197,35 +190,30 @@ public class PortfolioTest
         assertEquals(201, client.getLastStatusCode());
 
 
-        // START NEW
         client.start();
         client.getAllUniversities();
         assertEquals(200, client.getLastStatusCode());
         assertEquals(2, client.universityData().size());
 
-        // TEST SECOND RESULT
         client.setUniversityCursor(1);
         assertTrue(client.isGetSingleUniversityAllowed());
         client.getSingleUniversity(client.cursorUniversityData);
         assertEquals("CountryTwo", client.universityData().getFirst().getCountry());
     }
 
-    // UPDATE UNIVERSITY
+    // UPDATING THE UNIVERSITY
     @Test void create_university_and_update() throws IOException {
 
-        // START AND CREATE UNIVERSITY
         client.start();
         client.getAllUniversities();
         var university = getUniversityExample();
         client.createUniversity(university);
         assertEquals(201, client.getLastStatusCode());
 
-        // GET SINGLE
         assertTrue(client.isGetSingleUniversityAllowed());
         client.getSingleUniversity();
         assertEquals(1, client.universityData().size());
 
-        // UPDATE
         var uniNew = client.universityData().getFirst();
         var newCountry = "ChangedCountry";
         uniNew.setCountry(newCountry);
@@ -234,29 +222,25 @@ public class PortfolioTest
         client.updateUniversity(uniNew);
         assertEquals(204, client.getLastStatusCode());
 
-        // CHECK RESULT
         client.start();
         client.getAllUniversities();
         assertEquals(newCountry, client.universityData().getFirst().getCountry());
 
     }
 
-    // UPDATE UNIVERSITY WRONG INPUT 1
+    // WRONG INPUT UNIVERSITY UPDATE
     @Test void create_and_update_false_outgoing() throws IOException {
 
-        // START AND CREATE UNIVERSITY
         client.start();
         client.getAllUniversities();
         var university = getUniversityExample();
         client.createUniversity(university);
         assertEquals(201, client.getLastStatusCode());
 
-        // GET SINGLE
         assertTrue(client.isGetSingleUniversityAllowed());
         client.getSingleUniversity();
         assertEquals(1, client.universityData().size());
 
-        // UPDATE
         var uniNew = client.universityData().getFirst();
         var newOutgoing = -1;
         uniNew.setStudentsOutgoing(newOutgoing);
@@ -267,22 +251,19 @@ public class PortfolioTest
 
     }
 
-    // UPDATE UNIVERSITY FALSE INPUT 2
+    //  FALSE INPUT 2 UNIVERSITY UPDATE
     @Test void create_and_update_false_incoming() throws IOException {
 
-        // START AND CREATE UNIVERSITY
         client.start();
         client.getAllUniversities();
         var university = getUniversityExample();
         client.createUniversity(university);
         assertEquals(201, client.getLastStatusCode());
 
-        // GET SINGLE
         assertTrue(client.isGetSingleUniversityAllowed());
         client.getSingleUniversity();
         assertEquals(1, client.universityData().size());
 
-        // UPDATE
         var uniNew = client.universityData().getFirst();
         var newIncoming = -1;
         uniNew.setStudentsIncoming(newIncoming);
@@ -292,7 +273,7 @@ public class PortfolioTest
         assertEquals(400, client.getLastStatusCode());
     }
 
-    // UPDATE UNIVERSITY FALSE INPUT 3
+    // FALSE INPUT 3 UNIVERSITY UPDATED
     @Test void create_and_update_false_rank() throws IOException {
 
         // START AND CREATE UNIVERSITY
@@ -317,24 +298,20 @@ public class PortfolioTest
         assertEquals(400, client.getLastStatusCode());
     }
 
-    // DELETE UNIVERSITY
+    // DELETING A UNIVERSITY
     @Test void create_and_delete_one() throws IOException {
 
-        // GET ALL
         client.start();
         client.getAllUniversities();
 
-        // CREATE
         assertTrue(client.isCreateUniversityAllowed());
         var university = getUniversityExample();
         client.createUniversity(university);
         assertEquals(201, client.getLastStatusCode());
 
-        // GET SINGLE
         assertTrue(client.isGetSingleUniversityAllowed());
         client.getSingleUniversity();
 
-        // DELETE
         assertTrue(client.isDeleteUniversityAllowed());
         client.deleteUniversity();
         assertEquals(204, client.getLastStatusCode());
@@ -345,15 +322,12 @@ public class PortfolioTest
 
     }
 
-    // GET ALL AND CHECK FOR CORRECT PAGING
+    // CHECK FOR PAGING AND GET ALL
     @Test void create_and_check_paging() throws IOException {
-        // CREATE 70 UNIVERSITIES
-//This is new
         client.fillDatabase();
         client.fillDatabase();
         client.start();
 
-        // GET ALL universities
         assertTrue(client.isGetAllUniversitiesAllowed());
         client.getAllUniversities();
         assertEquals(200, client.getLastStatusCode());
@@ -389,33 +363,27 @@ public class PortfolioTest
     // GET ALL MODULES
     @Test void create_and_get_all_modules() throws IOException {
 
-        // BEFORE EACH
         startAndCreateUniversity();
 
-        // GET MODULES
         assertTrue(client.isGetAllModulesAllowed());
         client.getAllModules();
         assertEquals(200, client.getLastStatusCode());
     }
 
-    // CREATE MODULE
+    // CREATING THE MODULE
     @Test void create_university_and_module() throws IOException {
 
-        // BEFORE EACH
         startAndCreateUniversity();
 
-        // GET ALL
         assertTrue(client.isGetAllModulesAllowed());
         client.getAllModules();
         assertEquals(200, client.getLastStatusCode());
 
-        // CREATE MODULE
         assertTrue(client.isCreateModuleAllowed());
         var module = getModuleExample();
         client.createModule(module);
         assertEquals(201, client.getLastStatusCode());
 
-        // TEST CREATION
         assertTrue(client.isGetSingleModuleAllowed());
         client.getSingleModule();
         assertTrue(client.isGetAllModulesAllowed());
@@ -427,15 +395,12 @@ public class PortfolioTest
     // CREATE MODULE FALSE INPUT 1
     @Test void create_university_and_false_module_for_semester() throws IOException {
 
-        // BEFORE EACH
         startAndCreateUniversity();
 
-        // GET ALL
         assertTrue(client.isGetAllModulesAllowed());
         client.getAllModules();
         assertEquals(200, client.getLastStatusCode());
 
-        // CREATE MODULE
         assertTrue(client.isCreateModuleAllowed());
         var module = getModuleExample();
         module.setSemesterOffered(3);
@@ -446,15 +411,12 @@ public class PortfolioTest
     // CREATE MODULE FALSE INPUT 2
     @Test void create_university_and_module_for_false_credits() throws IOException {
 
-        // BEFORE EACH
         startAndCreateUniversity();
 
-        // GET ALL
         assertTrue(client.isGetAllModulesAllowed());
         client.getAllModules();
         assertEquals(200, client.getLastStatusCode());
 
-        // CREATE MODULE
         assertTrue(client.isCreateModuleAllowed());
         var module = getModuleExample();
         module.setCreditPoints(-1);
@@ -465,39 +427,32 @@ public class PortfolioTest
     // GET SINGLE MODULE
     @Test void create_university_and_get_module() throws IOException {
 
-        // BEFORE EACH
         startAndCreateUniversity();
 
-        // GET ALL
         assertTrue(client.isGetAllModulesAllowed());
         client.getAllModules();
         assertEquals(200, client.getLastStatusCode());
 
-        // CREATE MODULE
         assertTrue(client.isCreateModuleAllowed());
         var module = getModuleExample();
         client.createModule(module);
         assertEquals(201, client.getLastStatusCode());
 
-        // TEST SINGLE MODULE
         assertTrue(client.isGetSingleModuleAllowed());
         client.getSingleModule();
         assertEquals(200, client.getLastStatusCode());
         assertEquals(5, client.moduleData().getFirst().getCreditPoints());
     }
 
-     // UPDATE MODULE
+     // MODULE UPDATE
      @Test void create_university_and_module_change_description() throws IOException {
 
-        // BEFORE EACH
         startAndCreateUniversity();
 
-        // GET ALL
         assertTrue(client.isGetAllModulesAllowed());
         client.getAllModules();
         assertEquals(200, client.getLastStatusCode());
 
-        // CREATE MODULE
         assertTrue(client.isCreateModuleAllowed());
         var nonExistingModule = getModuleExample();
         client.createModule(nonExistingModule);
@@ -505,7 +460,6 @@ public class PortfolioTest
         assertTrue(client.isGetSingleModuleAllowed());
         client.getSingleModule();
 
-        // UPDATE MODULE
         var updated = client.moduleData().getFirst();
         var newDescription = "new description";
         updated.setDescription(newDescription);
@@ -513,7 +467,6 @@ public class PortfolioTest
         client.updateModule(updated);
         assertEquals(204, client.getLastStatusCode());
 
-        // TEST RESULT OF CHANGE
         assertTrue(client.isGetSingleModuleAllowed());
         client.getSingleModule();
         assertTrue(client.isGetAllModulesAllowed());
@@ -522,18 +475,15 @@ public class PortfolioTest
         assertEquals("new description", client.moduleData().getFirst().getDescription());
     }
 
-    // UPDATE MODULE FALSE INPUT 1
+    // UPDATE THE FALSE INPUT MODULE
     @Test void create_university_and__module_change_false_credits() throws IOException {
 
-        // BEFORE EACH
         startAndCreateUniversity();
 
-        // GET ALL
         assertTrue(client.isGetAllModulesAllowed());
         client.getAllModules();
         assertEquals(200, client.getLastStatusCode());
 
-        // CREATE MODULE
         assertTrue(client.isCreateModuleAllowed());
         var nonExistingModule = getModuleExample();
         client.createModule(nonExistingModule);
@@ -541,7 +491,6 @@ public class PortfolioTest
         assertTrue(client.isGetSingleModuleAllowed());
         client.getSingleModule();
 
-        // UPDATE MODULE
         var updated = client.moduleData().getFirst();
         var newCredits = -1;
         updated.setCreditPoints(newCredits);
@@ -551,20 +500,15 @@ public class PortfolioTest
     }
 
 
-    // DELETE MODULE
+    // DELETING MODULE
     @Test void create_two_modules_and_delete_single() throws IOException {
-
-        // BEFORE EACH
         startAndCreateUniversity();
 
-        // GET ALL
         assertTrue(client.isGetAllModulesAllowed());
         client.getAllModules();
         assertEquals(200, client.getLastStatusCode());
         assertEquals(0, client.moduleData().size());
 
-
-        // CREATE MODULE
         assertTrue(client.isCreateModuleAllowed());
         var module = getModuleExample();
         client.createModule(module);
@@ -573,7 +517,6 @@ public class PortfolioTest
         client.getSingleModule();
         assertTrue(client.isGetAllModulesAllowed());
 
-        // CREATE SECOND MODULE
         client.getAllModules();
         assertTrue(client.isCreateModuleAllowed());
         client.createModule(module);
@@ -581,7 +524,6 @@ public class PortfolioTest
         assertTrue(client.isGetSingleModuleAllowed());
         client.getSingleModule();
 
-        // DELETE MODULE
         assertTrue(client.isDeleteModuleAllowed());
         client.deleteModule();
         assertTrue(client.isGetAllModulesAllowed());
