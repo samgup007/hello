@@ -31,12 +31,12 @@ public class PortfolioTest
 
     private static @NotNull ClientUni getUniversityExample() {
         var university = new ClientUni();
-        university.setStudentsOutgoing(300);
-        university.setStudentsIncoming(200);
         university.setUniversityName("UniversityTest");
         university.setCountry("LandTest");
         university.setDepartmentName("Science Dept");
         university.setDepartmentWebsite("http://testuni.testland/cs");
+        university.setStudentsOutgoing(300);
+        university.setStudentsIncoming(200);
         university.setContactPerson("Test Doe");
         university.setNextSpringSemesterStart(LocalDate.of(2025, 3, 1));
         university.setNextAutumnSemesterStart(LocalDate.of(2025, 9, 1));
@@ -91,6 +91,7 @@ public class PortfolioTest
         assertEquals(200, client.getLastStatusCode());
     }
 
+//this is sample
     @Test public void get_all_universities_dispatcher() throws IOException {
         client.start();
         assertTrue(client.isGetAllUniversitiesAllowed());
@@ -347,6 +348,7 @@ public class PortfolioTest
     // GET ALL AND CHECK FOR CORRECT PAGING
     @Test void create_and_check_paging() throws IOException {
         // CREATE 70 UNIVERSITIES
+//This is new
         client.fillDatabase();
         client.fillDatabase();
         client.start();
