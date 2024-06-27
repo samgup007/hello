@@ -31,13 +31,13 @@ public class PortfolioTest
 
     private static @NotNull ClientUni getUniversityExample() {
         var university = new ClientUni();
+        university.setStudentsOutgoing(300);
+        university.setStudentsIncoming(200);
         university.setUniversityName("UniversityTest");
         university.setCountry("LandTest");
         university.setDepartmentName("Science Dept");
         university.setDepartmentWebsite("http://testuni.testland/cs");
         university.setContactPerson("Test Doe");
-        university.setStudentsOutgoing(300);
-        university.setStudentsIncoming(200);
         university.setNextSpringSemesterStart(LocalDate.of(2025, 3, 1));
         university.setNextAutumnSemesterStart(LocalDate.of(2025, 9, 1));
         university.setAnnualTuitionFees(1500.0);
@@ -64,13 +64,10 @@ public class PortfolioTest
         assertEquals(201, client.getLastStatusCode());
     }
 
-    // CREATE UNIVERSITY WRONG INPUT 1
     @Test void create_uni_falseinput_incoming_test() throws IOException {
-        // GET ALL
         client.start();
         client.getAllUniversities();
 
-        // CREATE
         var university = getUniversityExample();
         university.setStudentsIncoming(-1);
         assertTrue(client.isCreateUniversityAllowed());
@@ -78,13 +75,10 @@ public class PortfolioTest
         assertEquals(400, client.getLastStatusCode());
     }
 
-    // CREATE UNIVERSITY WRONG INPUT 2
     @Test void create_uni_falseinput_outgoing_test() throws IOException {
-        // GET ALL
         client.start();
         client.getAllUniversities();
 
-        // CREATE
         var university = getUniversityExample();
         university.setStudentsOutgoing(-1);
         assertTrue(client.isCreateUniversityAllowed());
@@ -92,13 +86,11 @@ public class PortfolioTest
         assertEquals(400, client.getLastStatusCode());
     }
 
-    // GET DISPATCHER
     @Test public void dispatcher_availability() throws IOException {
         client.start();
         assertEquals(200, client.getLastStatusCode());
     }
 
-    // GET ALL UNIVERSITIES
     @Test public void get_all_universities_dispatcher() throws IOException {
         client.start();
         assertTrue(client.isGetAllUniversitiesAllowed());
@@ -106,7 +98,6 @@ public class PortfolioTest
         assertEquals(200, client.getLastStatusCode());
     }
 
-    // GET SINGLE UNIVERSITY
     @Test void create_and_get_university_dispatcher() throws IOException {
         // GET ALL
         client.start();
@@ -169,7 +160,7 @@ public class PortfolioTest
 
     // Descending GET All
     @Test void create_universities_and_display_in_descending() throws IOException {
-        /* Create 35 universities "A-Z/1-9 University" to test ordering */
+       
         client.fillDatabase();
 
         // GET ALL AND ORDER
@@ -365,7 +356,6 @@ public class PortfolioTest
         client.getAllUniversities();
         assertEquals(200, client.getLastStatusCode());
 
-        // Besuchen der zweiten Seite
         assertTrue(client.isNextAvailable());
         client.getNextPageOfUniversities();
         assertEquals(200, client.getLastStatusCode());
@@ -374,7 +364,6 @@ public class PortfolioTest
         assertEquals(20, client.getNumberOfResults());
         assertEquals(70, client.getTotalNumberOfResults());
 
-        // Auf letzte Seite gehen
         client.getNextPageOfUniversities();
         client.getNextPageOfUniversities();
         assertEquals(200, client.getLastStatusCode());
